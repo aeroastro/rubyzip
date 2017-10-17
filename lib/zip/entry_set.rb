@@ -34,7 +34,11 @@ module Zip
     end
 
     def each
+      #puts "COUNT: #{sorted_entries.dup.count}"
+      i = 0
       @entry_set = sorted_entries.dup.each do |_, value|
+        i += 1
+        #puts "  LOOP#{i}: #{_}, #{value}"
         yield(value)
       end
     end

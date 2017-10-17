@@ -242,7 +242,7 @@ module Zip
         if entry.kind_of?(Entry)
           entry
         else
-          Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, size, time)
+          Entry.new(@name, entry.to_s, comment, extra, compressed_size, crc, compression_method, size, time).tap { |e| e.dirty = true }
         end
       if new_entry.directory?
         raise ArgumentError,
@@ -285,7 +285,7 @@ module Zip
       check_entry_exists(new_name, continue_on_exists_proc, 'rename')
       @entry_set.delete(foundEntry)
       foundEntry.name = new_name
-      @entry_set << foundEntry
+      @entry_set << foundEntry.tap { |e| e.dirty = true }
     end
 
     # Replaces the specified entry with the contents of srcPath (from
@@ -324,7 +324,11 @@ module Zip
     # Write buffer write changes to buffer and return
     def write_buffer(io = ::StringIO.new(''))
       ::Zip::OutputStream.write_buffer(io) do |zos|
-        @entry_set.each { |e| e.write_to_zip_output_stream(zos) }
+        #binding.pry
+        @entry_set.each do |e|
+          #next unless e.dirty
+          e.write_to_zip_output_stream(zos)
+        end
         zos.comment = comment
       end
     end
@@ -370,7 +374,7 @@ module Zip
       raise Errno::EEXIST, "File exists - #{entryName}" if find_entry(entryName)
       entryName = entryName.dup.to_s
       entryName << '/' unless entryName.end_with?('/')
-      @entry_set << ::Zip::StreamableDirectory.new(@name, entryName, nil, permissionInt)
+      @entry_set << ::Zip::StreamableDirectory.new(@name, entryName, nil, permissionInt).tap { |e| e.dirty = true }
     end
 
     private

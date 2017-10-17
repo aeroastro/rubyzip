@@ -112,7 +112,9 @@ module Zip
       @compressor = NullCompressor.instance
       entry.get_raw_input_stream do |is|
         is.seek(src_pos, IO::SEEK_SET)
+        STDOUT.puts "SRC POS: #{src_pos}, #{entry.name}"
         ::Zip::Entry.read_local_entry(is)
+        STDOUT.puts "AFTER READ_LOCAL_ENTRY #{src_pos}, #{entry.name}"
         IOExtras.copy_stream_n(@output_stream, is, entry.compressed_size)
       end
       @compressor = NullCompressor.instance

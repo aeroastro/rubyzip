@@ -198,7 +198,9 @@ module Zip
         entry = new(io)
         entry.read_local_entry(io)
         entry
-      rescue Error
+      rescue Error => e
+        STDOUT.puts "READ ERROR io: #{io}, error: #{e.message}"
+        #binding.pry
         nil
       end
     end
@@ -687,4 +689,4 @@ end
 
 # Copyright (C) 2002, 2003 Thomas Sondergaard
 # rubyzip is free software; you can redistribute it and/or
-# modify it under the terms of the ruby license.
+
